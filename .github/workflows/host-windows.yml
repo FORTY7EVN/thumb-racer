@@ -5,6 +5,9 @@ on:
     paths: ["host/**", ".github/workflows/host-windows.yml"]
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: windows-latest
@@ -28,3 +31,11 @@ jobs:
         with:
           name: ThumbRacerHost-windows
           path: host/dist/
+      - name: Publish to the "latest" release
+        if: github.ref == 'refs/heads/main'
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create latest --title "Latest build" --notes "Newest phone app and PC host from main. See README for setup." || true
+          gh release upload latest dist/ThumbRacerHost.exe dist/config.toml --clobber

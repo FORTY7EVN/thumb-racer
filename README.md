@@ -3,15 +3,38 @@
 Two thumbs on a Redmi Note 13 become a racing controller for Windows: thumb height difference steers,
 thumb spacing is gas/brake. The phone sends 26-byte UDP packets at 250 Hz; the PC host feeds a vJoy joystick.
 
-| Part | Folder | Status |
-| --- | --- | --- |
-| Windows host (Python) | `host/` | done (section 1) |
-| Android app (Kotlin) | `android/` | sections 2–5 |
+| Part | Folder |
+| --- | --- |
+| Windows host (Python) | `host/` |
+| Android app (Kotlin) | `android/` |
 
-## Get the PC host
+## Download
 
-Download **ThumbRacerHost-windows** from the latest run of the *PC host (.exe)* workflow in the Actions tab.
-It contains `ThumbRacerHost.exe` and `config.toml` (keep them in the same folder).
+Everything is on the [**latest release**](https://github.com/FORTY7EVN/thumb-racer/releases/tag/latest), rebuilt on every push:
+
+- `ThumbRacer.apk` → phone
+- `ThumbRacerHost.exe` + `config.toml` → PC (keep them in the same folder)
+
+## Phone setup (Redmi / HyperOS)
+
+1. Open `ThumbRacer.apk` on the phone and allow installing from that app when asked.
+2. Settings > Apps > Thumb Racer > Battery saver > **No restrictions**.
+3. Phone and PC on the same network (5 GHz Wi-Fi if you can).
+4. Open the app, run **Calibrate thumbs** once, then tap your PC in the list.
+
+## Driving
+
+| Do this | Get this |
+| --- | --- |
+| Rest both thumbs (one per half) | Engage (two short buzzes) |
+| Right thumb lower than left | Steer right (and the reverse) |
+| Spread thumbs apart | Gas — screen turns green |
+| Squeeze thumbs together | Brake — screen turns red (hold at a stop to reverse) |
+| Slide both thumbs down | Handbrake — amber border |
+| Push both thumbs up | Nitro — cyan border (or wrist flick, in settings) |
+| Quick lift + retap right / left thumb | Shift up / down |
+| Lift a thumb longer than 0.2 s | Everything released |
+| Hold a finger top-center for 1 s | Quick menu: analog/digital, sensitivity, nitro mode |
 
 ## One-time PC setup
 
