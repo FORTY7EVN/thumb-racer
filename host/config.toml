@@ -1,0 +1,13 @@
+# Thumb Racer host settings. Delete a line to use its default.
+discovery_port = 47100
+data_port = 47101
+# pc_name = "My Gaming PC"     # shown on the phone; defaults to the computer name
+vjoy_id = 1
+neutral_timeout_ms = 250       # no input this long -> everything centered
+drop_timeout_ms = 3000         # no packet this long -> session dropped, another phone may connect
+invert_steer = false
+invert_gas = false
+invert_brake = false
+invert_handbrake = false
+combined_pedals = false        # gas and brake on one axis (Y) for older games
+# vjoy_dll = 'C:\Program Files\vJoy\x64\vJoyInterface.dll'
