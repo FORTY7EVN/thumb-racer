@@ -14,6 +14,7 @@ DEFAULTS = {
     "discovery_port": 47100,
     "data_port": 47101,
     "pc_name": socket.gethostname(),
+    "output": "xbox",  # "xbox" (ViGEmBus, works in most games) or "vjoy" (custom joystick for sims)
     "vjoy_id": 1,
     "neutral_timeout_ms": 250,
     "drop_timeout_ms": 3000,
@@ -64,12 +65,17 @@ def main(argv=None):
         out = PrintOut(cfg)
     else:
         try:
-            from .vjoy_out import VJoyOut
-            out = VJoyOut(cfg["vjoy_id"], cfg)
-        except (OSError, RuntimeError) as e:  # driver missing or device not configured
-            print(f"vJoy device {cfg['vjoy_id']} not available: {e}\n"
-                  "Install vJoy and enable device 1 (X, Y, Z, Rx, 8 buttons) and close vJoy Monitor/Feeder apps. See README.")
+            if cfg["output"] == "vjoy":
+                from .vjoy_out import VJoyOut
+                out = VJoyOut(cfg["vjoy_id"], cfg)
+            else:
+                from .xbox_out import XboxOut
+                out = XboxOut(cfg)
+        except (OSError, RuntimeError) as e:
+            print(f"Controller output '{cfg['output']}' not available: {e}\nSee README > One-time PC setup.")
+            input("Press Enter to close.")  # keep the window open when started by double-click
             return 2
+        print(f"Output: {'vJoy device ' + str(cfg['vjoy_id']) if cfg['output'] == 'vjoy' else 'virtual Xbox 360 controller'}")
 
     log_file = writer = None
     if args.latency_log:

@@ -27,6 +27,20 @@ jobs:
           pyinstaller --onefile --console --name ThumbRacerHost --paths . run_host.py
           copy config.toml dist\
           copy fake_phone.py dist\
+      - name: Add ViGEm client DLL and driver installer (MIT, taken from the vgamepad sdist without installing it)
+        shell: python
+        run: |
+          import io, json, tarfile, urllib.request
+          meta = json.load(urllib.request.urlopen("https://pypi.org/pypi/vgamepad/0.1.0/json"))
+          url = next(u["url"] for u in meta["urls"] if u["packagetype"] == "sdist")
+          tar = tarfile.open(fileobj=io.BytesIO(urllib.request.urlopen(url).read()))
+          want = {"client/x64/ViGEmClient.dll": "ViGEmClient.dll", "install/x64/ViGEmBusSetup_x64.msi": "ViGEmBusSetup_x64.msi"}
+          for m in tar.getmembers():
+              for tail, name in want.items():
+                  if m.name.endswith(tail):
+                      open("dist/" + name, "wb").write(tar.extractfile(m).read())
+          missing = [n for n in want.values() if not __import__("os").path.exists("dist/" + n)]
+          assert not missing, missing
       - uses: actions/upload-artifact@v4
         with:
           name: ThumbRacerHost-windows
@@ -38,4 +52,4 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           gh release create latest --title "Latest build" --notes "Newest phone app and PC host from main. See README for setup." || true
-          gh release upload latest dist/ThumbRacerHost.exe dist/config.toml --clobber
+          gh release upload latest dist/ThumbRacerHost.exe dist/config.toml dist/ViGEmClient.dll dist/ViGEmBusSetup_x64.msi --clobber

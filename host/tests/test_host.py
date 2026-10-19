@@ -6,6 +6,7 @@ from thumbracer import protocol as p
 from thumbracer.app import DEFAULTS
 from thumbracer.server import Host
 from thumbracer.vjoy_out import AXIS_CENTER, AXIS_MAX, AXIS_MIN, to_axes
+from thumbracer.xbox_out import XUSB_A, XUSB_RB, XUSB_X, to_xbox
 
 
 class ProtocolTest(unittest.TestCase):
@@ -45,6 +46,15 @@ class AxisTest(unittest.TestCase):
         c = to_axes(p.InputState(0, 0, 0, 0, 0, 65535, 0, 0, 0), {"combined_pedals": True})
         self.assertEqual(c["y"], AXIS_MIN)
         self.assertEqual(to_axes(p.NEUTRAL, {"combined_pedals": True})["y"], AXIS_CENTER)
+
+
+class XboxTest(unittest.TestCase):
+    def test_mapping(self):
+        a = to_xbox(p.InputState(0, 0, 0, -32767, 65535, 32768, 0, p.BTN_SHIFT_UP | p.BTN_NITRO | p.BTN_HANDBRAKE, 0), {})
+        self.assertEqual((a["lx"], a["rt"], a["lt"]), (-32767, 255, 127))
+        self.assertEqual(a["buttons"], XUSB_RB | XUSB_A | XUSB_X)
+        self.assertEqual(to_xbox(p.NEUTRAL, {}), {"lx": 0, "rt": 0, "lt": 0, "buttons": 0})
+        self.assertEqual(to_xbox(p.InputState(0, 0, 0, 100, 0, 0, 0, 0, 0), {"invert_steer": True})["lx"], -100)
 
 
 class FakeOut:

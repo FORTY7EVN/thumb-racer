@@ -13,7 +13,8 @@ thumb spacing is gas/brake. The phone sends 26-byte UDP packets at 250 Hz; the P
 Everything is on the [**latest release**](https://github.com/FORTY7EVN/thumb-racer/releases/tag/latest), rebuilt on every push:
 
 - `ThumbRacer.apk` → phone
-- `ThumbRacerHost.exe` + `config.toml` → PC (keep them in the same folder)
+- `ThumbRacerHost.exe`, `config.toml`, `ViGEmClient.dll` → PC, all in the same folder
+- `ViGEmBusSetup_x64.msi` → PC, install once
 
 ## Phone setup (Redmi / HyperOS)
 
@@ -38,19 +39,24 @@ Everything is on the [**latest release**](https://github.com/FORTY7EVN/thumb-rac
 
 ## One-time PC setup
 
-1. Install the vJoy driver for Windows 10/11 (BrunnerInnovation fork, v2.2.x).
-2. Open **Configure vJoy** → device 1: enable axes **X, Y, Z, Rx**, **8 buttons**, 0 POV hats, force feedback off.
-3. Run `ThumbRacerHost.exe`. When Windows Firewall asks, allow it on **Private** networks.
-4. Bind each game once:
+The host shows up in Windows as a **virtual Xbox 360 controller** by default, which works in NFS Heat,
+Forza and almost every racing game with no binding.
 
-| Control | vJoy input |
+1. Run `ViGEmBusSetup_x64.msi` once (the virtual-gamepad driver), then restart the PC.
+2. Run `ThumbRacerHost.exe`. When Windows Firewall asks, allow it on **Private** networks.
+3. In the game choose controller / gamepad input. Default layout (matches NFS Heat):
+
+| Phone | Xbox pad |
 | --- | --- |
-| Steering | X axis |
-| Throttle | Y axis |
-| Brake | Z axis |
-| Handbrake | Rx axis or button 4 |
-| Shift up / down | buttons 1 / 2 |
-| Nitro | button 3 |
+| Steer | Left stick |
+| Gas / brake | RT / LT |
+| Handbrake | X |
+| Nitro | A |
+| Shift up / down | RB / LB |
+
+**Sims that bind any axis (Assetto Corsa etc.):** set `output = "vjoy"` in `config.toml`, install the
+vJoy driver (BrunnerInnovation fork, v2.2.x), enable device 1 with axes X, Y, Z, Rx and 8 buttons, and bind
+X = steer, Y = gas, Z = brake, Rx or button 4 = handbrake, buttons 1/2 = shift, button 3 = nitro.
 
 ## Test without the phone
 
