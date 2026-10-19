@@ -116,7 +116,7 @@ class Controller(val p: Profile) {
         lastT = t
         if (flickPending) {
             flickPending = false
-            if (p.nitroWrist && engaged && t - lastFlick >= p.flickCooldown) {
+            if (p.useNitro && p.nitroWrist && engaged && t - lastFlick >= p.flickCooldown) {
                 nitroPulseUntil = t + 120
                 lastFlick = t
             }
@@ -142,7 +142,7 @@ class Controller(val p: Profile) {
             if (graceStart >= 0) { // a lifted thumb came back inside the grace window
                 val back = if (graceLeft) l else r
                 val lp = liftPos
-                if (lp != null && hypot(back.x - lp.x, back.y - lp.y) <= p.retapRadius) tap(t, graceLeft, ev)
+                if (p.useShifting && lp != null && hypot(back.x - lp.x, back.y - lp.y) <= p.retapRadius) tap(t, graceLeft, ev)
                 graceStart = -1.0
             }
             lastL = l; lastR = r
@@ -184,7 +184,7 @@ class Controller(val p: Profile) {
 
     private fun compute(t: Double, dt: Double, l: Thumb, r: Thumb, ev: MutableList<Event>) {
         val d = (r.y - l.y) - dY0
-        val newSteer = if (p.steerDigital) {
+        val newSteer = if (!p.useSteering) 0.0 else if (p.steerDigital) {
             steerLatch = latch(steerLatch, d, p.steerSnap)
             steerLatch.toDouble()
         } else {
@@ -204,7 +204,9 @@ class Controller(val p: Profile) {
         steer = newSteer
 
         val s = (r.x - l.x) - span0
-        if (p.speedDigital) {
+        if (!p.useGasBrake) {
+            gas = 0.0; brake = 0.0
+        } else if (p.speedDigital) {
             speedLatch = latch(speedLatch, s, p.speedSnap)
             gas = if (speedLatch > 0) 1.0 else 0.0
             brake = if (speedLatch < 0) 1.0 else 0.0
@@ -217,8 +219,8 @@ class Controller(val p: Profile) {
         if (gas < 0.95 && brake < 0.95) pedalLatched = false
 
         val h = (l.y + r.y) / 2 - mY0
-        handbrake = ((h - p.hbStart) / max(p.hbFull - p.hbStart, 1.0)).coerceIn(0.0, 1.0)
-        nitroHeld = !p.nitroWrist && -h > p.nitroStart
+        handbrake = if (p.useHandbrake) ((h - p.hbStart) / max(p.hbFull - p.hbStart, 1.0)).coerceIn(0.0, 1.0) else 0.0
+        nitroHeld = p.useNitro && !p.nitroWrist && -h > p.nitroStart
     }
 
     private fun moveToward(from: Double, to: Double, step: Double) =

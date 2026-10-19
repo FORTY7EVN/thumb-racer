@@ -137,6 +137,22 @@ class ControllerTest {
         assertFalse(run(c, 8, restL, restR).nitro) // cooldown 800 ms
     }
 
+    @Test fun switchedOffFunctionsStayNeutral() {
+        val p = Profile().apply {
+            useSteering = false; useGasBrake = false; useHandbrake = false; useNitro = false; useShifting = false
+        }
+        val c = engaged(p)
+        var o = run(c, 400, restL.copy(x = 10.0, y = 55.0), restR.copy(x = 140.0, y = 70.0)) // turn + gas + handbrake
+        assertEquals(0.0, o.steer, 0.0)
+        assertEquals(0.0, o.gas, 0.0)
+        assertEquals(0.0, o.handbrake, 0.0)
+        o = run(c, 100, restL.copy(y = 10.0), restR.copy(y = 10.0)) // push up = nitro
+        assertFalse(o.nitro)
+        run(c, 50, restL, null)
+        assertEquals(0, run(c, 4, restL, restR).buttons) // retap = no shift
+        assertTrue(o.engaged)
+    }
+
     @Test fun calibrationScalesThresholds() {
         val p = Profile()
         p.applyCalibration(listOf(

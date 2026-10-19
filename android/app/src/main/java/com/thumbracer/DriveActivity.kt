@@ -26,7 +26,7 @@ class DriveActivity : Activity(), SensorEventListener {
     private lateinit var view: DriveView
     private var wifiLock: WifiManager.WifiLock? = null
     private var sensors: SensorManager? = null
-    private var overlayOpen = false
+    private var dialogs = 0 // open menus; output stays neutral until all are closed
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -67,14 +67,21 @@ class DriveActivity : Activity(), SensorEventListener {
 
     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
 
-    /** Quick settings mid-session; output is neutral while it is open. */
-    private fun openOverlay() {
-        if (overlayOpen) return
-        overlayOpen = true
+    private fun pauseFor(d: AlertDialog.Builder) {
+        dialogs++
         engine?.paused = true
         view.tracker.clear()
+        d.setOnDismissListener {
+            if (--dialogs == 0) { engine?.paused = false; goFullScreen(view) }
+        }.show()
+    }
+
+    /** Quick settings mid-session; output is neutral while it is open. */
+    private fun openOverlay() {
+        if (dialogs > 0) return
         val p = profile
         val items = arrayOf(
+            "Turn functions on/off…",
             "Steering: ${if (p.steerDigital) "Digital" else "Analog"} (tap to switch)",
             "Gas/brake: ${if (p.speedDigital) "Digital" else "Analog"} (tap to switch)",
             "Steering sensitivity: more",
@@ -82,21 +89,37 @@ class DriveActivity : Activity(), SensorEventListener {
             "Nitro: ${if (p.nitroWrist) "Wrist flick" else "Push thumbs up"} (tap to switch)",
             "Exit to connect screen",
         )
-        AlertDialog.Builder(this)
+        pauseFor(AlertDialog.Builder(this)
             .setTitle("Thumb Racer — ${ProfileStore.active}")
             .setItems(items) { _, which ->
                 when (which) {
-                    0 -> p.steerDigital = !p.steerDigital
-                    1 -> p.speedDigital = !p.speedDigital
-                    2 -> p.steerMax = (p.steerMax * 0.9).coerceAtLeast(5.0)
-                    3 -> p.steerMax = p.steerMax * 1.1
-                    4 -> p.nitroWrist = !p.nitroWrist
-                    5 -> finish()
+                    0 -> openFunctions()
+                    1 -> p.steerDigital = !p.steerDigital
+                    2 -> p.speedDigital = !p.speedDigital
+                    3 -> p.steerMax = (p.steerMax * 0.9).coerceAtLeast(5.0)
+                    4 -> p.steerMax = p.steerMax * 1.1
+                    5 -> p.nitroWrist = !p.nitroWrist
+                    6 -> finish()
                 }
                 ProfileStore.save(p)
+            })
+    }
+
+    private fun openFunctions() {
+        val p = profile
+        val names = arrayOf("Steering", "Gas / brake", "Handbrake", "Nitro", "Gear shifting", "Screen color", "Vibration")
+        val on = booleanArrayOf(p.useSteering, p.useGasBrake, p.useHandbrake, p.useNitro, p.useShifting,
+            p.colorOn, p.hapticIntensity > 0)
+        pauseFor(AlertDialog.Builder(this)
+            .setTitle("Functions")
+            .setMultiChoiceItems(names, on) { _, i, checked -> on[i] = checked }
+            .setPositiveButton("Done") { _, _ ->
+                p.useSteering = on[0]; p.useGasBrake = on[1]; p.useHandbrake = on[2]
+                p.useNitro = on[3]; p.useShifting = on[4]; p.colorOn = on[5]
+                p.hapticIntensity = if (on[6]) p.hapticIntensity.takeIf { it > 0 } ?: 1.0 else 0.0
+                ProfileStore.save(p)
             }
-            .setOnDismissListener { overlayOpen = false; engine?.paused = false; goFullScreen(view) }
-            .show()
+            .setNegativeButton("Cancel", null))
     }
 
     @SuppressLint("ViewConstructor")

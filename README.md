@@ -16,6 +16,11 @@ Everything is on the [**latest release**](https://github.com/FORTY7EVN/thumb-rac
 - `ThumbRacerHost.exe`, `config.toml`, `ViGEmClient.dll` → PC, all in the same folder
 - `ViGEmBusSetup_x64.msi` → PC, install once
 
+**Turning functions on/off:** steering, gas/brake, handbrake, nitro, gear shifting, screen color and vibration
+can each be switched off in the quick menu while driving, or under *Settings & profiles* (the "Use …" switches
+at the top). A switched-off function always sends neutral, so you can, say, keep keyboard shifting and use the
+phone only for steering and pedals. Settings are saved per profile.
+
 ## Phone setup (Redmi / HyperOS)
 
 1. Open `ThumbRacer.apk` on the phone and allow installing from that app when asked.
@@ -35,7 +40,7 @@ Everything is on the [**latest release**](https://github.com/FORTY7EVN/thumb-rac
 | Push both thumbs up | Nitro — cyan border (or wrist flick, in settings) |
 | Quick lift + retap right / left thumb | Shift up / down |
 | Lift a thumb longer than 0.2 s | Everything released |
-| Hold a finger top-center for 1 s | Quick menu: analog/digital, sensitivity, nitro mode |
+| Hold a finger top-center for 1 s | Quick menu: turn functions on/off, analog/digital, sensitivity, nitro mode |
 
 ## One-time PC setup
 

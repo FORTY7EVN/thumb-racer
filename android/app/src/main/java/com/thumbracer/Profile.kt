@@ -5,6 +5,13 @@ package com.thumbracer
  * (ProfileStore JSON, SettingsActivity), so adding a var here adds it everywhere.
  */
 class Profile {
+    // functions on/off (an off function always sends neutral)
+    var useSteering = true
+    var useGasBrake = true
+    var useHandbrake = true
+    var useNitro = true
+    var useShifting = true
+
     // modes
     var steerDigital = false
     var speedDigital = false
